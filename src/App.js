@@ -1,7 +1,14 @@
 import React from 'react';
+import { Route, Switch } from 'react-router-dom';
+
+import MainPage from './pages/MainPage';
 
 function App() {
-  return <div>YTDA</div>;
+  return (
+    <Switch>
+      <Route component={MainPage} />
+    </Switch>
+  );
 }
 
 export default App;
