@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   OAUTH2_AUTH_URI,
@@ -10,12 +10,18 @@ import {
 
 const SignIn = props => {
   const { history, location, onSignedIn } = props;
-
   const [signedIn, setSignedIn] = useState(false);
-
   const [params, setParams] = useState(
     JSON.parse(sessionStorage.getItem('oauth2')) || {}
   );
+
+  const signOut = useCallback(() => {
+    setSignedIn(false);
+    setParams({});
+    sessionStorage.removeItem('oauth2');
+    onSignedIn(false, '');
+    history.push('/');
+  }, [history, onSignedIn]);
 
   // Parse query string and store params
   useEffect(() => {
@@ -33,7 +39,6 @@ const SignIn = props => {
       Object.keys(queryParams).length > 0 &&
       queryParams.constructor === Object
     ) {
-      console.log('useEffect: location: set queryParams');
       setParams(queryParams);
     }
   }, [location]);
@@ -43,13 +48,13 @@ const SignIn = props => {
     console.log('useEffect: params: validate');
 
     if (params['access_token']) {
-      console.log('useEffect: params: send xhr');
+      console.log('useEffect: params: validate: send xhr');
       const xhr = new XMLHttpRequest();
       xhr.open(
         'POST',
         OAUTH2_TOKEN_INFO_URI + '?access_token=' + params['access_token']
       );
-      xhr.onreadystatechange = function(e) {
+      xhr.onreadystatechange = function() {
         let response = {};
 
         if (xhr.response) {
@@ -64,25 +69,18 @@ const SignIn = props => {
           response['aud'] === OAUTH2_CLIENT_ID
         ) {
           if (params['state'] === 'received_token') {
-            console.log('token validated');
             setSignedIn(true);
             onSignedIn(true, params['access_token']);
           }
         } else if (xhr.readyState === 4) {
           console.error('Error validating the token');
           console.error(xhr.response);
-          sessionStorage.removeItem('oauth2');
-          setSignedIn(false);
-          onSignedIn(false, '');
-          history.push('/');
-          // TODO: notify user of being logged out
-        } else {
-          console.log('useEffect: params: readyState !== 4');
+          signOut();
         }
       };
       xhr.send(null);
     }
-  }, [params, history, onSignedIn]);
+  }, [params, history, onSignedIn, signOut]);
 
   // update params in session store
   useEffect(() => {
@@ -91,6 +89,7 @@ const SignIn = props => {
   }, [params]);
 
   // request Google OAuth 2.0 access token
+  // TODO: convert to xhr
   const oauth2SignIn = () => {
     const form = document.createElement('form');
     form.setAttribute('method', 'GET');
@@ -117,20 +116,28 @@ const SignIn = props => {
     form.submit();
   };
 
-  // revoke Google OAuth 2.0 access token
+  // TODO: revoke Google OAuth 2.0 access token
   function oauth2SignOut() {
-    const form = document.createElement('form');
-    form.setAttribute('method', 'POST');
-    form.setAttribute('action', OAUTH2_REVOKE_URI);
+    console.log('OAuth2 sign out');
+    if (params['access_token']) {
+      const xhr = new XMLHttpRequest();
+      const url = OAUTH2_REVOKE_URI;
+      var postParams = 'token=' + encodeURIComponent(params['access_token']);
 
-    const tokenField = document.createElement('input');
-    tokenField.setAttribute('type', 'hidden');
-    tokenField.setAttribute('name', 'token');
-    tokenField.setAttribute('value', params['access_token']);
-    form.appendChild(tokenField);
-
-    document.body.appendChild(form);
-    form.submit();
+      xhr.open('POST', url);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          signOut();
+        } else if (xhr.readyState === 4) {
+          console.error('OAuth2 error signing out');
+          console.error(xhr.response);
+        }
+      };
+      xhr.send(postParams);
+    } else {
+      console.error('OAuth2 sign out: access_token is unavailable');
+    }
   }
 
   return (
