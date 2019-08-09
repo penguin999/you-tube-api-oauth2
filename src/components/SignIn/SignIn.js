@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 
 import {
   OAUTH2_AUTH_URI,
@@ -8,20 +10,24 @@ import {
   OAUTH2_TOKEN_INFO_URI
 } from '../../config';
 
+import AuthContext from '../../context/AuthContext';
+
 const SignIn = props => {
-  const { history, location, onSignedIn } = props;
-  const [signedIn, setSignedIn] = useState(false);
+  const { history, location } = props;
+
+  const authContext = useContext(AuthContext);
+
   const [params, setParams] = useState(
     JSON.parse(sessionStorage.getItem('oauth2')) || {}
   );
 
   const signOut = useCallback(() => {
-    setSignedIn(false);
     setParams({});
-    sessionStorage.removeItem('oauth2');
-    onSignedIn(false, '');
+    // sessionStorage.removeItem('oauth2');
+    authContext.setAccessToken('');
+    authContext.setAuthenticated(false);
     history.push('/');
-  }, [history, onSignedIn]);
+  }, [authContext, history]);
 
   // Parse query string and store params
   useEffect(() => {
@@ -69,8 +75,8 @@ const SignIn = props => {
           response['aud'] === OAUTH2_CLIENT_ID
         ) {
           if (params['state'] === 'received_token') {
-            setSignedIn(true);
-            onSignedIn(true, params['access_token']);
+            authContext.setAccessToken(params['access_token']);
+            authContext.setAuthenticated(true);
           }
         } else if (xhr.readyState === 4) {
           console.error('Error validating the token');
@@ -80,7 +86,7 @@ const SignIn = props => {
       };
       xhr.send(null);
     }
-  }, [params, history, onSignedIn, signOut]);
+  }, [params, history, signOut, authContext]);
 
   // update params in session store
   useEffect(() => {
@@ -142,10 +148,44 @@ const SignIn = props => {
 
   return (
     <>
-      {!signedIn ? <button onClick={oauth2SignIn}>Sign In</button> : null}
-      {signedIn ? <button onClick={oauth2SignOut}>Sign Out</button> : null}
+      {!authContext.authenticated ? (
+        <button
+          className="btn btn-outline-dark btn-sm"
+          type="button"
+          onClick={oauth2SignIn}
+        >
+          Sign In
+        </button>
+      ) : null}
+      {authContext.authenticated ? (
+        <button
+          className="btn btn-outline-dark btn-sm"
+          type="button"
+          onClick={oauth2SignOut}
+        >
+          Sign Out
+        </button>
+      ) : null}
     </>
   );
 };
 
-export default SignIn;
+SignIn.defaultProps = {
+  history: {
+    push: () => {}
+  },
+  location: {
+    hash: ''
+  }
+};
+
+SignIn.propTypes = {
+  history: PropTypes.shape({
+    push: PropTypes.func
+  }),
+  location: PropTypes.shape({
+    hash: PropTypes.string
+  })
+};
+
+export default withRouter(SignIn);
