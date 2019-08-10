@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "gh-pages": "^2.1.1",
     "lodash": "^4.17.15",
     "lodash.template": "^4.5.0",
     "prop-types": "^15.7.2",
@@ -16,8 +17,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
+  "homepage": "https://penguin999.github.io/you-tube-api-oauth2",
   "eslintConfig": {
     "extends": "react-app"
   },
