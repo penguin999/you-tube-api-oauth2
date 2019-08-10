@@ -7,7 +7,7 @@ import { SearchContainer } from './Search.styles';
 
 import magnifyingGlass from '../../images/magnifying-glass.svg';
 
-import { youTubeSearchData } from '../../mocks/youTubeSearchData';
+// import { youTubeSearchData } from '../../mocks/youTubeSearchData';
 
 const Search = () => {
   const authContext = useContext(AuthContext);
@@ -22,9 +22,15 @@ const Search = () => {
   };
 
   const handleSearch = () => {
-    searchQueryInput = 'react hooks';
     setSearchQuery(searchQueryInput);
     searchYouTube(searchQueryInput);
+  };
+
+  const handleKeyDown = e => {
+    console.log(e);
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const parseXhrResponse = xhrResponse => {
@@ -37,12 +43,13 @@ const Search = () => {
   };
 
   const searchYouTube = (query, pageToken) => {
+    /*
+    // use mock data
     pageToken = pageToken || 'ZZZZZZ';
     return parseXhrResponse(JSON.stringify(youTubeSearchData[pageToken]));
-    /*
-    const xhr = new XMLHttpRequest();
+    */
 
-    console.log(query, pageToken);
+    const xhr = new XMLHttpRequest();
 
     if (query.length < 1) {
       return;
@@ -88,7 +95,6 @@ const Search = () => {
       }
     };
     xhr.send(null);
-    */
   };
 
   const loadPage = pageToken => {
@@ -114,6 +120,7 @@ const Search = () => {
           className="form-control"
           aria-label="Search"
           onChange={handleOnChange}
+          onKeyDown={handleKeyDown}
         />
         <div className="input-group-append">
           <button className="btn btn-dark" type="button" onClick={handleSearch}>
