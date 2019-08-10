@@ -14,6 +14,10 @@ code {
 }
 
 /* Bootstrap overrides */
+.btn-dark:focus, .btn-dark.focus,
+.btn-outline-dark:focus, .btn-outline-dark.focus {
+  box-shadow: none;
+}
 .form-control:focus {
   border-color: #ced4da;
   box-shadow: none;

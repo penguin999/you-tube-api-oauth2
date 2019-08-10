@@ -2,19 +2,19 @@ import React from 'react';
 
 import SignIn from '../../components/SignIn/SignIn';
 
-import { HeaderContainer } from './Header.styles';
+import { HeaderContainer, SignInContainer } from './Header.styles';
 
 const Header = () => {
   return (
     <HeaderContainer>
       <div className="container">
         <div className="row">
-          <div className="col-8 offset-2">
+          <div className="col-6 offset-3">
             <h4>YouTube Search Videos</h4>
           </div>
-          <div className="col-2">
+          <SignInContainer className="col-3 p-0">
             <SignIn />
-          </div>
+          </SignInContainer>
         </div>
       </div>
     </HeaderContainer>

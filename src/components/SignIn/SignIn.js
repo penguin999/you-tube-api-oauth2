@@ -12,6 +12,10 @@ import {
 
 import AuthContext from '../../context/AuthContext';
 
+import { SignOutButton } from './SignIn.Styles';
+
+import googleSignInButton from '../../images/btn-google-signin.png';
+
 const SignIn = props => {
   const { history, location } = props;
 
@@ -31,7 +35,6 @@ const SignIn = props => {
 
   // Parse query string and store params
   useEffect(() => {
-    console.log('useEffect: location');
     let m;
     let queryParams = {};
     const regex = /([^&=]+)=([^&]*)/g;
@@ -51,10 +54,7 @@ const SignIn = props => {
 
   // Validate the access token received via query string
   useEffect(() => {
-    console.log('useEffect: params: validate');
-
     if (params['access_token']) {
-      console.log('useEffect: params: validate: send xhr');
       const xhr = new XMLHttpRequest();
       xhr.open(
         'POST',
@@ -67,20 +67,18 @@ const SignIn = props => {
           response = JSON.parse(xhr.response);
         }
 
-        // verify that 'aud' matches OAUTH2_CLIENT_ID
         if (
           xhr.readyState === 4 &&
           xhr.status === 200 &&
           response['aud'] &&
           response['aud'] === OAUTH2_CLIENT_ID
         ) {
-          if (params['state'] === 'received_token') {
+          if (params['state'] === 'receivedToken') {
             authContext.setAccessToken(params['access_token']);
             authContext.setAuthenticated(true);
           }
         } else if (xhr.readyState === 4) {
-          console.error('Error validating the token');
-          console.error(xhr.response);
+          console.error('Error validating the token', xhr.response);
           signOut();
         }
       };
@@ -90,41 +88,37 @@ const SignIn = props => {
 
   // update params in session store
   useEffect(() => {
-    console.log('useEffect: params: update session storage');
     sessionStorage.setItem('oauth2', JSON.stringify(params));
   }, [params]);
 
   // request Google OAuth 2.0 access token
-  // TODO: convert to xhr
   const oauth2SignIn = () => {
-    const form = document.createElement('form');
-    form.setAttribute('method', 'GET');
-    form.setAttribute('action', OAUTH2_AUTH_URI);
+    let url = '';
+    let query = '';
 
     const oauth2Params = {
       client_id: OAUTH2_CLIENT_ID,
       redirect_uri: OAUTH2_REDIRECT_URI,
       scope: 'https://www.googleapis.com/auth/youtube.readonly',
-      state: 'received_token',
+      state: 'receivedToken',
       include_granted_scopes: 'true',
       response_type: 'token'
     };
 
     for (let p in oauth2Params) {
-      const input = document.createElement('input');
-      input.setAttribute('type', 'hidden');
-      input.setAttribute('name', p);
-      input.setAttribute('value', oauth2Params[p]);
-      form.appendChild(input);
+      query += p + '=' + oauth2Params[p] + '&';
     }
+    query = query.slice(0, -1);
 
-    document.body.appendChild(form);
-    form.submit();
+    url = `${OAUTH2_AUTH_URI}?${query}`;
+
+    if (typeof window !== 'undefined') {
+      window.location.assign(url);
+    }
   };
 
-  // TODO: revoke Google OAuth 2.0 access token
+  // revoke Google OAuth 2.0 access token
   function oauth2SignOut() {
-    console.log('OAuth2 sign out');
     if (params['access_token']) {
       const xhr = new XMLHttpRequest();
       const url = OAUTH2_REVOKE_URI;
@@ -136,8 +130,7 @@ const SignIn = props => {
         if (xhr.readyState === 4 && xhr.status === 200) {
           signOut();
         } else if (xhr.readyState === 4) {
-          console.error('OAuth2 error signing out');
-          console.error(xhr.response);
+          console.error('OAuth2 error signing out', xhr.response);
         }
       };
       xhr.send(postParams);
@@ -149,34 +142,23 @@ const SignIn = props => {
   return (
     <>
       {!authContext.authenticated ? (
-        <button
-          className="btn btn-outline-dark btn-sm"
-          type="button"
+        <img
+          src={googleSignInButton}
+          alt="Sign In Button"
           onClick={oauth2SignIn}
-        >
-          Sign In
-        </button>
+        />
       ) : null}
       {authContext.authenticated ? (
-        <button
-          className="btn btn-outline-dark btn-sm"
+        <SignOutButton
+          className="btn btn-outline-secondary btn-sm"
           type="button"
           onClick={oauth2SignOut}
         >
-          Sign Out
-        </button>
+          SIGN OUT
+        </SignOutButton>
       ) : null}
     </>
   );
-};
-
-SignIn.defaultProps = {
-  history: {
-    push: () => {}
-  },
-  location: {
-    hash: ''
-  }
 };
 
 SignIn.propTypes = {

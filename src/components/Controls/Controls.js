@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import Results from '../Results/Results';
 import Pagination from '../Pagination/Pagination';
 
-const Controls = () => {
+import { ControlsContainer } from './Controls.styles';
+
+const Controls = memo(() => {
   return (
-    <div>
+    <ControlsContainer>
       <Results />
       <Pagination />
-    </div>
+    </ControlsContainer>
   );
-};
+});
 
 export default Controls;

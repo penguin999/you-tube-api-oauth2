@@ -1,7 +1,7 @@
 export const OAUTH2_AUTH_URI = 'https://accounts.google.com/o/oauth2/v2/auth';
 
 export const OAUTH2_CLIENT_ID =
-  '48992983691-rsi88a9ujfm0nhc8gbtdllpgur3obaga.apps.googleusercontent.com';
+  '968780488089-2v1tdgrrhca0ft3ohqaf3mval62jfhp0.apps.googleusercontent.com';
 
 export const OAUTH2_REDIRECT_URI = 'https://localhost:3000/';
 
