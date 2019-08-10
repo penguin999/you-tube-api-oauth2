@@ -27,7 +27,6 @@ const Search = () => {
   };
 
   const handleKeyDown = e => {
-    console.log(e);
     if (e.key === 'Enter') {
       handleSearch();
     }
@@ -72,7 +71,6 @@ const Search = () => {
     );
     xhr.onreadystatechange = function(e) {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        console.log(xhr.response);
         parseXhrResponse(xhr.response);
       } else if (
         xhr.readyState === 4 &&

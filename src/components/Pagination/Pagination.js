@@ -16,6 +16,10 @@ const Pagination = () => {
   return useMemo(() => {
     let totalPages = Math.ceil(searchContext.numberOfItems / 5);
 
+    if (!searchContext.prevPageToken) {
+      setCurrentPage(1);
+    }
+
     const handleNextClick = () => {
       if (searchContext.nextPageToken) {
         searchContext.loadPage(searchContext.nextPageToken);
