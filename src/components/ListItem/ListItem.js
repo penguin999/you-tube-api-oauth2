@@ -5,12 +5,11 @@ import {
   ListItemContainer,
   ListItemDescription,
   ListItemInfo,
-  ListItemThumbnail,
   ListItemTitle
 } from './ListItem.styles';
 
 const ListItem = props => {
-  const video = props.item.snippet;
+  const item = props.item.snippet;
   const videoId = props.item.id.videoId;
   const channelId = props.item.id.channelId;
   let href = '';
@@ -29,7 +28,7 @@ const ListItem = props => {
     'November',
     'December'
   ];
-  const date = new Date(video.publishedAt);
+  const date = new Date(item.publishedAt);
   const videoDate =
     date.getDate() +
     ' ' +
@@ -49,16 +48,17 @@ const ListItem = props => {
         <div className="row p-3">
           <div className="col-5">
             <a href={href}>
-              <ListItemThumbnail
-                src={video.thumbnails.medium.url}
-                alt="video thumbnail"
+              <img
+                className="img-fluid mx-auto d-block"
+                src={item.thumbnails.medium.url}
+                alt="item thumbnail"
               />
             </a>
           </div>
           <div className="col-7">
-            <ListItemTitle title={video.title}>{video.title}</ListItemTitle>
-            <ListItemDescription title={video.description}>
-              {video.description}
+            <ListItemTitle title={item.title}>{item.title}</ListItemTitle>
+            <ListItemDescription title={item.description}>
+              {item.description}
             </ListItemDescription>
             <div>
               <a href={href}>
@@ -68,7 +68,7 @@ const ListItem = props => {
               </a>
             </div>
             <ListItemInfo>
-              <span>{videoDate}</span> by {video.channelTitle}
+              <span>{videoDate}</span> by {item.channelTitle}
             </ListItemInfo>
           </div>
         </div>

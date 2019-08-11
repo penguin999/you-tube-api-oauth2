@@ -19,10 +19,10 @@ export const ListItemContainer = styled.div`
 
 export const ListItemDescription = styled.div`
   color: #777;
-  font-size: 1rem;
-  height: 4.2rem;
-  line-height: 1.4rem;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  height: 3.75rem;
+  line-height: 1.25rem;
+  margin-bottom: 0.9rem;
   overflow: hidden;
   position: relative;
   &:after {
@@ -44,21 +44,17 @@ export const ListItemDescription = styled.div`
 export const ListItemInfo = styled.div`
   color: #888;
   font-size: 0.72rem;
-  margin-top: 1rem;
+  margin-top: 0.9rem;
   span {
     text-transform: uppercase;
   }
-`;
-
-export const ListItemThumbnail = styled.img`
-  max-height: 193px;
 `;
 
 export const ListItemTitle = styled.div`
   font-size: 1.8rem;
   line-height: 3rem;
   height: 3rem;
-  margin: -0.75rem 0 0.5rem;
+  margin: -0.75rem 0 0.4rem;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
